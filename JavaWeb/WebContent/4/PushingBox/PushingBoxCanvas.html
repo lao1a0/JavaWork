@@ -1,0 +1,210 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>推箱子</title>
+	<script type="text/javascript">
+	const FieldLeft = 100;
+	const FieldTop = 100;
+	const GrassWidth = 35;
+	const GrassHeight = 35;
+	var TotalBox = 0;
+	var CurrentInBox = 0;
+	var Map=[
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
+		[0,0,0,0,1,4,0,0,1,0,0,0,0,0,0,0],
+		[0,0,0,0,1,0,3,3,1,0,1,1,1,0,0,0],
+		[0,0,0,0,1,0,3,0,1,0,1,2,1,0,0,0],
+		[0,0,0,0,1,1,1,0,1,1,1,2,1,0,0,0],
+		[0,0,0,0,0,1,1,0,0,0,0,2,1,0,0,0],
+		[0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0],
+		[0,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0],
+		[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+	var CurrentRow, CurrentCol, CurrentState;
+	//读取图像
+	var grass = new Image();
+	grass.src = "images/grass.gif";
+	var wall = new Image();
+	wall.src = "images/wall.png";
+	var ball = new Image();
+	ball.src = "images/ball.png";
+	var box = new Image();
+	box.src = "images/box.png";
+	var down = new Image();
+	down.src = "images/down.png";
+	var up = new Image();
+	up.src = "images/up.png";
+	var left = new Image();
+	left.src = "images/left.png";
+	var right = new Image();
+	right.src = "images/right.png";
+	
+	function ReDraw() {
+		var c=document.getElementById("Field");
+		var ctx=c.getContext("2d");
+		ctx.clearRect(0, 0, c.width, c.height);
+		for (var i=0; i<16; i++)
+			for (var j=0; j<16; j++){
+				ctx.drawImage(grass,j*35,i*35);
+			}	
+		for (var i=0; i<16; i++)
+			for (var j=0; j<16; j++){
+				if (Map[i][j] > 0) {
+					switch (Map[i][j]){
+					case 1://绘制墙壁
+						ctx.drawImage(wall, j * 35, i * 35 - 11);
+						break;
+					case 2://绘制坑
+						ctx.drawImage(ball, j * 35 + 3, i * 35 + 3);
+						break;
+					case 3://绘制箱子
+					case 5:
+						ctx.drawImage(box, j * 35, i * 35 - 10);
+						break;
+					}
+				}
+				if (i==CurrentRow && j==CurrentCol){
+					switch (CurrentState) {
+					case 'D':
+						ctx.drawImage(down, j * 35 - 7, i * 35 - 27);
+						break;
+					case 'U':
+						ctx.drawImage(up, j * 35 - 7, i * 35 - 27);
+						break;
+					case 'R':
+						ctx.drawImage(right, j * 35 - 7, i * 35 - 27);
+						break;
+					case 'L':
+						ctx.drawImage(left, j * 35 - 7, i * 35 - 27);
+						break;
+					}
+				}
+			}
+	}
+	function tryMove(direction){
+		var TargetRow = CurrentRow;
+		var TargetCol = CurrentCol;
+		var SecondRow = CurrentRow;
+		var SecondCol = CurrentCol;
+		switch (direction) {
+		case 'L':
+			CurrentState = 'L';
+			TargetCol--;
+			SecondCol = TargetCol - 1;
+			break;
+		case 'R':
+			CurrentState = 'R';
+			TargetCol++;;
+			SecondCol = TargetCol + 1;
+			break;
+		case 'U':
+			CurrentState = 'U';
+			TargetRow--;
+			SecondRow = TargetRow - 1;
+			break;
+		case 'D':
+			CurrentState = 'D';
+			TargetRow++;
+			SecondRow = TargetRow + 1;
+			break;
+		}
+		if (TargetRow < 0 || TargetRow > 15 || TargetCol < 0 || TargetCol > 15)
+			return;
+		//0:草地  2：球
+		if (Map[TargetRow][TargetCol] == 0 || Map[TargetRow][TargetCol] == 2) {
+			CurrentRow = TargetRow;
+			CurrentCol = TargetCol;
+		}
+		//3:前面是个箱子
+		else if (Map[TargetRow][TargetCol] == 3){
+			if (SecondRow < 0 || SecondRow > 15 || SecondCol < 0 || SecondCol > 15)
+				return;
+			if (Map[SecondRow][SecondCol] == 0) {//如果箱子前面是草地就推箱子
+				Map[TargetRow][TargetCol] = 0;
+				Map[SecondRow][SecondCol] = 3;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+			else if (Map[SecondRow][SecondCol] == 2) {//如果箱子前面是个坑
+				Map[TargetRow][TargetCol] = 0;
+				Map[SecondRow][SecondCol] = 5;
+				CurrentInBox++;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+		}
+		//5.已经入洞的球
+		else if (Map[TargetRow][TargetCol] == 5){
+			if (SecondRow < 0 || SecondRow > 15 || SecondCol < 0 || SecondCol > 15)
+				return;
+			if (Map[SecondRow][SecondCol] == 0){
+				Map[TargetRow][TargetCol] = 2;
+				Map[SecondRow][SecondCol] = 3;
+				CurrentInBox--;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+			else if (Map[SecondRow][SecondCol] == 2){
+				Map[TargetRow][TargetCol] = 2;
+				Map[SecondRow][SecondCol] = 5;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+		}
+	}
+	function keyhandler(event){
+		switch (event.keyCode){
+		case 37://左键头
+			tryMove("L");
+			break;
+		case 38://上键头
+			tryMove("U");
+			break;
+		case 39://右箭头
+			tryMove("R");
+			break;
+		case 40://下箭头
+			tryMove("D");
+			break;
+		}
+		ReDraw();
+		if (CurrentInBox == TotalBox){
+			var c=document.getElementById("Field");
+			var ctx=c.getContext("2d");
+			ctx.rect(0,0,c.width,c.height);
+			ctx.fillStyle = "rgba(255,255,255,0.5)"; //绘制白色透明矩形
+			ctx.fill();
+			ctx.fillStyle = "#FF0000"; //绘制游戏结束
+			ctx.font = "80px 宋体";
+			ctx.fillText("游戏结束！", 90, 300);
+			document.body.onkeydown = null;
+		}
+	}
+	window.onload = function() {
+		for (var i = 0; i < 16; i++)
+			for (var j = 0; j < 16; j++){
+				if (Map[i][j] == 3)
+					TotalBox++;			//计算箱子数量
+				else if (Map[i][j] == 4)
+				{
+					CurrentRow = i;		//设置当前小人的位置
+					CurrentCol = j;
+					Map[i][j] = 0;		//清空
+					CurrentState = 'D';
+				}
+			}
+		ReDraw();
+		document.body.onkeydown = keyhandler;
+	}
+	</script>
+</head>
+<body>
+	<canvas id="Field" width="560px" height="560px" style="border:0px; margin-top: 100px; margin-left:100px;"></canvas>
+</body>
+</html>

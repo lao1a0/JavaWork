@@ -1,0 +1,28 @@
+﻿<html>
+<head>
+<meta charset="UTF-8">
+<title>判断姓名是否为空</title>
+<script type="text/javascript">
+	window.onload = function() {
+		document.getElementById("check").onclick = function() {
+			var str = form1.realName.value; //获取输入的真实姓名
+			if (str == "") { //当真实姓名为空时
+				alert("请输入姓名！");
+				form1.realName.focus();
+			}
+			else {
+				alert("姓名不为空！");
+			}
+			return;
+		};
+	};
+</script>
+</head>
+
+<body style="text-align: center;">
+	<form name="form1" method="post" action="">
+		请输入姓名：<input name="realName" type="text" id="realName"> 
+		<input name="check" type="button" value="检测" id="check">
+	</form>
+</body>
+</html>

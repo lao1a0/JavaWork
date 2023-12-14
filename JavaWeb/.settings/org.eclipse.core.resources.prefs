@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+encoding//src/servlets/CharacterEncodingFilter.java=UTF-8
+encoding//src/servlets/EncodingServlet.java=UTF-8
+encoding//src/servlets/FirstServlet.java=UTF-8

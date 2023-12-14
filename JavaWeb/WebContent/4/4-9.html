@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>HTML DOM举例</title>
+<style type="text/css">
+body {
+	text-align: center;
+}
+
+table {
+	width: 400px;
+	border: 1px solid blue;
+	border-collapse: collapse;
+	margin: 0 auto;
+}
+
+td {
+	text-align: center;
+	border: 1px solid blue;
+	height: 50px;
+}
+
+input {
+	font-size: 20px;
+}
+</style>
+<script type="text/javascript">
+	window.onload = function() {
+		document.getElementById("btn1").onclick =  function(){
+			if (document.getElementById('t1').innerHTML=='中国')
+				document.getElementById('t1').innerHTML='CHINA';
+			else
+				document.getElementById('t1').innerHTML='中国';
+		}
+		document.getElementById("btn2").onclick =  function(){
+			if (document.getElementById("t2").style.color == 'black')
+				document.getElementById('t2').style.color = 'red';
+			else
+				document.getElementById('t2').style.color = 'black';
+		}
+		document.getElementById("addRow").onclick = function() {
+			var td1 = document.createElement("td");
+			var td2 = document.createElement("td");
+			var tr = document.createElement("tr");
+			tr.appendChild(td1);
+			tr.appendChild(td2);
+			document.getElementById("tbl").children[0].appendChild(tr);
+		};
+		document.getElementById("div1").onmouseover = function() {
+			document.getElementById("div1").style.backgroundColor = "red";
+		}
+		document.getElementById("div1").onmouseout = function() {
+			document.getElementById("div1").style.backgroundColor = "green";
+		}
+	}
+</script>
+</head>
+<body>
+	<table id="tbl">
+		<tr>
+			<td style="width: 200px;"><input type="button" value="改变内容" id="btn1" /></td>
+			<td style="width: 200px;"><span id="t1">中国</span></td>
+		</tr>
+		<tr>
+			<td style="width: 200px;"><input type="button" value="改变样式" id="btn2" /></td>
+			<td style="width: 200px;"><span id="t2" style="color:black">中国</span></td>
+		</tr>
+		<tr>
+			<td colspan="2"><div id="div1" style="background-color: green; height: 40px; width: 600px;"></div></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="width: 200px;"><input type="button" id="addRow" value="增加一行" /></td>
+		</tr>
+	</table>
+</body>
+</html>

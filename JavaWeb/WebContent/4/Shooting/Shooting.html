@@ -1,0 +1,173 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>打枪游戏</title>
+	<script type="text/javascript">
+	const FieldLeft = 100;
+	const FieldTop = 100;
+	const FieldWidth = 320;
+	const FieldHeight = 480;
+	const ShipWidth = 37;
+	const ShipHeight = 34;
+	const BulletWidth = 11;
+	const BulletHeight = 19;
+	const EnemyWidth = 49;
+	const EnemyHeight = 49;
+	function Ship(){
+		this.Left = 0;
+		this.Top = 0;
+		this.move = function (TargetX, TargetY){
+			this.Left = TargetX;
+			if (this.Left < FieldLeft) 
+				this.Left = FieldLeft; 
+			if (this.Left > FieldLeft + FieldWidth - ShipWidth) 
+				this.Left = FieldLeft + FieldWidth - ShipWidth;
+			document.getElementById("ship").style.left = this.Left;
+			return;
+		}
+	}
+	var ship = new Ship;
+	function Bullet(ShipPosX, ShipPosY){
+		this.Left = ShipPosX + ShipWidth / 2 - BulletWidth / 2;
+		this.Top = ShipPosY - ShipHeight;
+		this.bulletDiv = document.createElement("div");
+		document.body.appendChild(this.bulletDiv);
+		this.bulletDiv.style.position = "absolute";
+		this.bulletDiv.style.width = BulletWidth;
+		this.bulletDiv.style.height = BulletHeight;
+		this.bulletDiv.style.left = this.Left;
+		this.bulletDiv.style.top = this.Top;
+		this.bulletDiv.style.backgroundImage = "url('images/bullet.png')";
+		this.advance = function (){
+			this.Top -= 7;
+			this.bulletDiv.style.top = this.Top;
+		}
+	}
+	var bullets = new Array();
+	function Enemy(){
+		this.Left = FieldLeft + Math.random() * (FieldWidth - EnemyWidth);
+		this.Top = FieldTop;
+		this.enemyDiv = document.createElement("div");
+		document.body.appendChild(this.enemyDiv);
+		this.enemyDiv.style.position = "absolute";
+		this.enemyDiv.style.width = EnemyWidth;
+		this.enemyDiv.style.height = EnemyHeight;
+		this.enemyDiv.style.left = this.Left;
+		this.enemyDiv.style.top = this.Top;
+		this.enemyDiv.style.backgroundImage = "url('images/enemy.png')";
+		this.advance = function (){
+			this.Top += 3;
+			this.enemyDiv.style.top = this.Top;
+		}
+	}
+	var enemies = new Array();
+
+	var FightTimer;
+	var TotalNum = 0;
+
+	var BkPositionY = 480;
+	function Fight(){
+		BkPositionY += 3;
+		document.getElementById("game").style.backgroundPositionY = BkPositionY + "px";	
+		for(var i = enemies.length - 1; i >= 0; i--) { 
+			var Check = false;
+			for(var j = bullets.length - 1; j >= 0; j--) {
+				if (!(bullets[j].Left > enemies[i].Left + EnemyWidth || bullets[j].Left + BulletWidth < enemies[i].Left
+					|| bullets[j].Top > enemies[i].Top + EnemyHeight || bullets[j].Top + BulletHeight < enemies[i].Top)) {
+					document.body.removeChild(bullets[j].bulletDiv);
+					bullets.splice(j, 1);
+					Check = true;
+					TotalNum++;
+					document.getElementById("quantity").innerHTML="打死敌人数量：" + TotalNum;
+					break;
+				}
+			}
+			if (Check){
+				document.body.removeChild(enemies[i].enemyDiv);
+				enemies.splice(i, 1);
+				break;
+			}
+			if (!(ship.Left > enemies[i].Left + EnemyWidth || ship.Left + ShipWidth < enemies[i].Left
+				|| ship.Top > enemies[i].Top + EnemyHeight || Ship.Top + ShipHeight < enemies[i].Top)) {
+				document.body.removeChild(enemies[i].enemyDiv);
+				enemies.splice(i, 1);
+				var shipDiv = document.getElementById("ship");
+				document.body.removeChild(shipDiv);
+				clearInterval(FightTimer);
+				document.getElementById("tips").innerHTML = "失败！";
+				document.getElementById("tips").style.display="block";
+				document.body.onmousemove = null;
+				document.body.onclick = null;
+				return;
+			}
+		}
+		if (TotalNum >= 100) {
+			clearInterval(FightTimer);
+			document.getElementById("tips").innerHTML = "成功！";
+			document.getElementById("tips").style.display = "block";
+			document.body.onmousemove = null;
+			document.body.onclick = null;
+			return;
+		}
+		if (BkPositionY % 30 == 0) {
+			var enemy = new Enemy();
+			enemies.push(enemy);
+		}
+		for(var i = bullets.length - 1; i >= 0; i--) { 
+			if (bullets[i].Top <= FieldTop + 10){				
+				document.body.removeChild(bullets[i].bulletDiv);
+				bullets.splice(i, 1);
+			}
+			else
+				bullets[i].advance();
+		}
+		for(var i = enemies.length - 1; i >= 0; i--) { 
+			if (enemies[i].Top > FieldTop + FieldHeight - 50){				
+				document.body.removeChild(enemies[i].enemyDiv);
+				enemies.splice(i, 1);
+			}
+			else
+				enemies[i].advance();
+		}
+	}
+	var BeginShipPos = FieldTop + FieldHeight -1;
+	var BeginShipHeight = 1;
+	function ShipEmerge(){
+		document.getElementById("ship").style.top = --BeginShipPos + "px";
+		if (BeginShipHeight < ShipHeight) {
+			document.getElementById("ship").style.height = ++BeginShipHeight + "px";
+		}
+		if (BeginShipPos > FieldTop + FieldHeight - ShipHeight - 20) 
+			setTimeout(ShipEmerge, 25);
+		else {
+			ship.Left = FieldLeft + FieldWidth / 2 - ShipWidth / 2; 
+			ship.Top = FieldTop + FieldHeight - ShipHeight - 20;
+			document.body.onmousemove = MouseMoveHandler;
+			document.body.onclick = MouseClickHandler;
+			FightTimer = setInterval(Fight, 30);
+		}
+	}
+	function MouseMoveHandler(event){
+		event = event || window.event;
+		var x = event.pageX || (event.clientX + (document.documentElement.scrollLeft|| document.body.scrollLeft));
+		var y= event.pageY || (event.clientY + (document.documentElement.scrollTop|| document.body.scrollTop));
+		if (x >= FieldLeft && x <= FieldLeft + FieldWidth && y >= FieldTop && y <= FieldTop + FieldHeight)
+			ship.move(x,y);
+	}
+	function MouseClickHandler(event){
+		var bullet = new Bullet(ship.Left, ship.Top);
+		bullets.push(bullet);
+	}
+	window.onload=function(){
+		ShipEmerge();
+	}
+	</script>
+</head>
+<body>
+	<div id="game" style ="position:absolute;top:100px;left:100px;width:320px;height:480px;background:url('images/background.png') 0px 480px;"></div>
+	<div id="ship" style ="position:absolute;top:579px;left:242px;width:37px;height:1px;background:url('images/ship.png');"></div>
+	<div id="tips" style="position:absolute;top:100px;left:100px;width:320px;height:480px;display:none;z-index:100;background-color:rgba(255,255,255,0.6);font-size:36px;text-align:center;line-height:480px;color:red;"></div>
+	<div id="quantity" style ="position:absolute;top:600px;left:100px;width:320px;text-align:center;"></div>
+	<div style="position:absolute;top:630px;left:100px;width:320px;text-align:center;"><a href="http://tutsplus.s3.amazonaws.com/tutspremium/flash-rias/064_easelJSShmup/demo/shooter.html" target="_blank">演示程序</a></div>
+</body>
+</html>

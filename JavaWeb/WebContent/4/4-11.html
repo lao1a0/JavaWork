@@ -1,0 +1,62 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>跟着鼠标走的文字</title>
+</head>
+
+<style type="text/css">
+.spanstyle {
+	position: absolute;
+	visibility: visible;
+	top: -50px;
+	font-size: 12pt;
+	font-family: 隶书;
+	color: 000012;
+	font-weight: bold;
+}
+</style>
+<body onLoad="makesnake()">
+</body>
+<script>
+	var x, y
+	var step = 20
+	var flag = 0
+	var message = "Web应用开发技术 "
+	message = message.split("")
+	var xpos = new Array()
+	for (i = 0; i <= message.length - 1; i++) {
+		xpos[i] = -50
+	}
+	var ypos = new Array()
+	for (i = 0; i <= message.length - 1; i++) {
+		ypos[i] = -50
+	}
+	function handlerMM(e) {
+		x = document.body.scrollLeft + event.clientX
+		y = document.body.scrollTop + event.clientY
+		flag = 1
+	}
+	function makesnake() {
+		if (flag == 1) {
+			for (i = message.length - 1; i >= 1; i--) {
+				xpos[i] = xpos[i - 1] + step
+				ypos[i] = ypos[i - 1]
+			}
+			xpos[0] = x + step
+			ypos[0] = y
+			for (i = 0; i < message.length - 1; i++) {
+				var thisspan = eval("span" + (i) + ".style")
+				thisspan.left = xpos[i]
+				thisspan.top = ypos[i]
+			}
+		}
+		var timer = setTimeout("makesnake()", 30)
+	}
+	for (i = 0; i <= message.length - 1; i++) {
+		document.write("<span id='span"+i+"'class='spanstyle'>")
+		document.write(message[i])
+		document.write("</span>")
+	}
+	document.onmousemove = handlerMM;
+</script>
+</html>

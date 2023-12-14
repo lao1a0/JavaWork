@@ -1,0 +1,49 @@
+﻿<html>
+<head>
+<meta charset="utf-8">
+<title>我的第一个jQuery脚本</title>
+<script type="text/javascript" src="JS/jquery-1.7.2.min.js"></script>
+<script>
+	$(function() {
+		//获取超链接对象，并为其添加单击事件
+		$("a").click(function() {
+			alert("我的第一个jQuery脚本！");
+		});
+		$(".flip").click(function() {
+			$(".panel").slideToggle("slow");
+		});
+		$("#updateContent").click(function(){
+			$(".flip").html("谚语");
+			$(".panel").html("<p>书山有路勤为径</p><p>学海无涯苦作舟</p>");
+		});
+		
+	});
+</script>
+<style type="text/css">
+div.panel, p.flip {
+	margin: 0px;
+	padding: 5px;
+	text-align: center;
+	background: #e5eecc;
+	border: solid 1px #c3c3c3;
+}
+
+div.panel {
+	height: 120px;
+	display: none;
+}
+</style>
+</head>
+
+<body>
+	<a href="#">弹出提示对话框</a>
+	<br/>
+	<p class="flip">怎样才能学好《Web应用开发技术》？</p>
+	<div class="panel">
+		<p>上课认真听讲</p>
+		<p>课下自学相关内容，勤学多练，才能开发出漂亮的Web网站</p>
+	</div>
+	<br/>
+	<input type="button" id="updateContent" value="修改内容"/>
+</body>
+</html>

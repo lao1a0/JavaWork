@@ -1,0 +1,37 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Ajax举例</title>
+<script type="text/javascript" src="JS/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#txt1").keyup(function() {
+			if ($("#txt1").val() == "")
+				$("#txtHint").html("");
+			else
+				$.post("/JavaWeb/ajax", {q : $("#txt1").val()}, function(s) {
+					names = s.split(",");
+					h = "";
+					for (i = 0; i < names.length; i++)
+						h += names[i] + "<br/>";
+					$("#txtHint").html(h);
+				});
+		});
+	});
+</script>
+</head>
+<body>
+	<table style="border-collapse: collapse; border-width: 0px;">
+		<tr>
+			<td>First Name:</td>
+			<td><input type="text" id="txt1" /></td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top;">Suggestions:</td>
+			<td><div id="txtHint"
+					style="color: red; border: 1px solid #999; height: 150px;"></div></td>
+		</tr>
+	</table>
+
+</body>
+</html>

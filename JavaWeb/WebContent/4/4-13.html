@@ -1,0 +1,56 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Ajax举例</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript">
+	var xmlHttp = null;
+	function showHint(str) {
+		if (str.length == 0) {
+			document.getElementById("txtHint").innerHTML = "";
+			return;
+		}
+		try {
+			xmlHttp = new XMLHttpRequest();
+		} catch (e) {
+			try {
+				xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {
+				alert("Your browser does not support XMLHTTP!");
+				return;
+			}
+		}
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState == 4) {
+				if (xmlHttp.status == 200) {
+					s = xmlHttp.responseText;
+					names = s.split(",");
+					h = "";
+					for (i = 0; i < names.length; i++)
+						h += names[i] + "<br/>";
+					document.getElementById("txtHint").innerHTML = h;
+				} else {
+					alert(xmlHttp.status);
+				}
+			}
+		}
+		var url = "/JavaWeb/ajax?q=" + str;
+		xmlHttp.open("GET", url, false);
+		xmlHttp.send(null);
+	}
+</script>
+</head>
+<body>
+	<table style="border-collapse: collapse; border-width: 0px;">
+		<tr>
+			<td>First Name:</td>
+			<td><input type="text" id="txt1" onkeyup="showHint(this.value)" /></td>
+		</tr>
+		<tr>
+			<td style = "vertical-align: top;">Suggestions:</td>
+			<td><div id="txtHint" style="color: red; border: 1px solid #999; height: 150px;"></div></td>
+		</tr>
+	</table>
+
+</body>
+</html>

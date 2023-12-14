@@ -1,0 +1,224 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>推箱子</title>
+	<script type="text/javascript">
+	const FieldLeft = 100;
+	const FieldTop = 100;
+	const GrassWidth = 35;
+	const GrassHeight = 35;
+	var TotalBox = 0;
+	var CurrentInBox = 0;
+	var Map=[
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0],
+		[0,0,0,0,1,4,0,0,1,0,0,0,0,0,0,0],
+		[0,0,0,0,1,0,3,3,1,0,1,1,1,0,0,0],
+		[0,0,0,0,1,0,3,0,1,0,1,2,1,0,0,0],
+		[0,0,0,0,1,1,1,0,1,1,1,2,1,0,0,0],
+		[0,0,0,0,0,1,1,0,0,0,0,2,1,0,0,0],
+		[0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0],
+		[0,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0],
+		[0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+	var CurrentRow, CurrentCol, CurrentState;
+	function DrawGrass() {
+		for (var i=0; i<16; i++)
+			for (var j=0; j<16; j++){
+				var grassDiv = document.createElement("div");
+				document.body.appendChild(grassDiv);
+				grassDiv.style.position = "absolute";
+				grassDiv.className = 'grass';
+				grassDiv.style.width = GrassWidth;
+				grassDiv.style.height = GrassHeight;
+				grassDiv.style.left = FieldLeft + j * GrassWidth;
+				grassDiv.style.top = FieldTop + i * GrassHeight;
+				grassDiv.style.backgroundImage = "url('images/grass.gif')";
+			}
+	}
+	function DrawObjects() {
+		var AllDivs = document.body.childNodes; 
+		for(var i = AllDivs.length - 1; i >= 0; i--) { 
+			if (AllDivs[i].className == "objects")
+				document.body.removeChild(AllDivs[i]); 
+		}
+		for (var i=0; i<16; i++)
+			for (var j=0; j<16; j++){
+				if (Map[i][j] > 0) {
+					var objectDiv = document.createElement("div");
+					document.body.appendChild(objectDiv);
+					objectDiv.style.position = "absolute";
+					objectDiv.className = 'objects';
+					switch (Map[i][j]){
+					case 1://绘制墙壁
+						objectDiv.style.width = 35;
+						objectDiv.style.height = 46;
+						objectDiv.style.left = FieldLeft + j * 35;
+						objectDiv.style.top = FieldTop + i * 35 - 11;
+						objectDiv.style.backgroundImage = "url('images/wall.png')";
+						break;
+					case 2://绘制坑
+						objectDiv.style.width = 30;
+						objectDiv.style.height = 30;
+						objectDiv.style.left = FieldLeft + j * 35 + 3;
+						objectDiv.style.top = FieldTop + i * 35 + 3;
+						objectDiv.style.backgroundImage = "url('images/ball.png')";
+						break;
+					case 3://绘制箱子
+					case 5:
+						objectDiv.style.width = 35;
+						objectDiv.style.height = 45;
+						objectDiv.style.left = FieldLeft + j * 35;
+						objectDiv.style.top = FieldTop + i * 35 - 10;
+						objectDiv.style.backgroundImage = "url('images/box.png')";
+						break;
+					}
+				}
+				if (i==CurrentRow && j==CurrentCol){
+					var objectDiv = document.createElement("div");
+					document.body.appendChild(objectDiv);
+					objectDiv.style.position = "absolute";
+					objectDiv.classList.add('objects');
+					objectDiv.style.width = 50;
+					objectDiv.style.height = 62;
+					objectDiv.style.left = FieldLeft + j * 35 - 7;
+					objectDiv.style.top = FieldTop + i * 35 - 27;
+					switch (CurrentState) {
+					case 'D':
+						objectDiv.style.backgroundImage = "url('images/down.png')";
+						break;
+					case 'U':
+						objectDiv.style.backgroundImage = "url('images/up.png')";
+						break;
+					case 'R':
+						objectDiv.style.backgroundImage = "url('images/right.png')";
+						break;
+					case 'L':
+						objectDiv.style.backgroundImage = "url('images/left.png')";
+						break;
+					}
+				}
+			}
+	}
+	function tryMove(direction){
+		var TargetRow = CurrentRow;
+		var TargetCol = CurrentCol;
+		var SecondRow = CurrentRow;
+		var SecondCol = CurrentCol;
+		switch (direction) {
+		case 'L':
+			CurrentState = 'L';
+			TargetCol--;
+			SecondCol = TargetCol - 1;
+			break;
+		case 'R':
+			CurrentState = 'R';
+			TargetCol++;;
+			SecondCol = TargetCol + 1;
+			break;
+		case 'U':
+			CurrentState = 'U';
+			TargetRow--;
+			SecondRow = TargetRow - 1;
+			break;
+		case 'D':
+			CurrentState = 'D';
+			TargetRow++;
+			SecondRow = TargetRow + 1;
+			break;
+		}
+		if (TargetRow < 0 || TargetRow > 15 || TargetCol < 0 || TargetCol > 15)
+			return;
+		//0:草地  2：球
+		if (Map[TargetRow][TargetCol] == 0 || Map[TargetRow][TargetCol] == 2) {
+			CurrentRow = TargetRow;
+			CurrentCol = TargetCol;
+		}
+		//3:前面是个箱子
+		else if (Map[TargetRow][TargetCol] == 3){
+			if (SecondRow < 0 || SecondRow > 15 || SecondCol < 0 || SecondCol > 15)
+				return;
+			if (Map[SecondRow][SecondCol] == 0) {//如果箱子前面是草地就推箱子
+				Map[TargetRow][TargetCol] = 0;
+				Map[SecondRow][SecondCol] = 3;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+			else if (Map[SecondRow][SecondCol] == 2) {//如果箱子前面是个坑
+				Map[TargetRow][TargetCol] = 0;
+				Map[SecondRow][SecondCol] = 5;
+				CurrentInBox++;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+		}
+		//5.已经入洞的球
+		else if (Map[TargetRow][TargetCol] == 5){
+			if (SecondRow < 0 || SecondRow > 15 || SecondCol < 0 || SecondCol > 15)
+				return;
+			if (Map[SecondRow][SecondCol] == 0){
+				Map[TargetRow][TargetCol] = 2;
+				Map[SecondRow][SecondCol] = 3;
+				CurrentInBox--;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+			else if (Map[SecondRow][SecondCol] == 2){
+				Map[TargetRow][TargetCol] = 2;
+				Map[SecondRow][SecondCol] = 5;
+				CurrentRow = TargetRow;
+				CurrentCol = TargetCol;
+			}
+		}
+	}
+	function keyhandler(event){
+		switch (event.keyCode){
+		case 37://左键头
+			tryMove("L");
+			break;
+		case 38://上键头
+			tryMove("U");
+			break;
+		case 39://右箭头
+			tryMove("R");
+			break;
+		case 40://下箭头
+			tryMove("D");
+			break;
+		}
+		DrawObjects();
+		if (CurrentInBox == TotalBox){
+			document.getElementById("tips").innerHTML = "恭喜你完成游戏！";
+			document.getElementById("tips").style.display = "block";
+			document.body.onkeydown = null;
+		}
+	}
+	window.onload = function() {
+		for (var i = 0; i < 16; i++)
+			for (var j = 0; j < 16; j++){
+				if (Map[i][j] == 3)
+					TotalBox++;			//计算箱子数量
+				else if (Map[i][j] == 4)
+				{
+					CurrentRow = i;		//设置当前小人的位置
+					CurrentCol = j;
+					Map[i][j] = 0;		//清空
+					CurrentState = 'D';
+				}
+			}
+		DrawGrass();
+		DrawObjects();
+		document.body.onkeydown = keyhandler;
+	}
+	</script>
+</head>
+<body>
+	<div id="tips" style="position:absolute;top:100px;left:100px;width:560px;height:560px;display:none;z-index:100;background-color:rgba(255,255,255,0.6);font-size:36px;text-align:center;line-height:560px;color:red;"></div>
+	<div style="position:absolute;top:670px;left:100px;width:560px;text-align:center;"><a href="https://www.html5tricks.com/demo/html5-canvas-box-game/index.html" target="_blank">演示程序</a></div>
+</body>
+</html>
